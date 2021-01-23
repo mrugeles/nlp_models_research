@@ -25,7 +25,7 @@ class NLPUtils:
         text = text.lower()
         text = re.sub(r"[^a-záéíóúÁÉÓÚÑñüÜ]", " ", text)
         word_list = tweet_tokenizer.tokenize(text)
-        if stop_words is False:
+        if stop_words is True:
             word_list = [w for w in word_list if w not in stopwords.words("spanish")]
         word_list = [self.get_lemma(text) for text in word_list]
         return ' '.join(word_list)
