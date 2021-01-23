@@ -1,16 +1,13 @@
-import time
-import pandas as pd
-from sklearn.experimental import enable_hist_gradient_boosting
+
 from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier, GradientBoostingClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import SVC
 from sklearn.base import TransformerMixin
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
-from sklearn.metrics import make_scorer, accuracy_score, f1_score, precision_score
+from sklearn.metrics import make_scorer, f1_score
 from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import Pipeline
 
-from nlp_utils import NLPUtils
 from mlflow import log_metric
 
 
