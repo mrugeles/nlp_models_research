@@ -10,6 +10,7 @@ from sklearn.pipeline import Pipeline
 
 from mlflow import log_metric
 
+from nlp_utils import NLPUtils
 
 class ModelUtils:
     models = {
@@ -35,6 +36,9 @@ class ModelUtils:
             'clf__degree': [3, 4]
         }
     }
+
+    def __init__(self):
+        self.nlpUtils = NLPUtils()
 
     def build_model(self, model_name, tune_model=False):
         """ Builds the pipeline and finds the best classification model with gridsearch.

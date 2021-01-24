@@ -22,15 +22,17 @@ nlpUtils = NLPUtils()
 datasets_path = ''
 
 
-def build_model(algorithm, sample_size, tune_model):
+def build_model(algorithm, sample_size):
     with mlflow.start_run():
         train_df = pd.read_csv(f'datasets/processed/aws/train_{sample_size}.csv')
         test_df = pd.read_csv(f'datasets/processed/aws/test_{sample_size}.csv')
 
         mlflow.log_param("algorithm", algorithm)
+        mlflow.log_param("use_tokenizer", False)
+        mlflow.log_param("remove_stop_words", False)
         mlflow.log_param("sample_size", sample_size)
 
-        model = modelUtils.build_model(algorithm, tune_model)
+        model = modelUtils.build_model(algorithm)
         model.fit(train_df['text'], train_df['label'])
 
         y_pred = model.predict(test_df['text'])
@@ -44,9 +46,8 @@ def build_model(algorithm, sample_size, tune_model):
 @click.command()
 @click.option('--algorithm', help='ML Algorithm')
 @click.option('--sample_size', help='Sample size for dataset', type=float)
-@click.option('--tune_model', help='Use hyper-parameters', type=bool)
-def run_experiment(algorithm, sample_size, tune_model):
-    build_model(algorithm, sample_size, tune_model)
+def run_experiment(algorithm, sample_size):
+    build_model(algorithm, sample_size)
 
 
 if __name__ == '__main__':
