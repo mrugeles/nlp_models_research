@@ -57,9 +57,9 @@ def get_class_weigth(train_df):
     return class_weight
 
 
-def train_model(algorithm, train_df, test_df, val_df, sample_size):
+def train_model(train_df, test_df, val_df, sample_size):
 
-    EPOCHS = 1
+    EPOCHS = 50
     embedding_dim = 64
 
     train_padded, test_padded, val_padded, max_length = sequence_datasets(train_df, test_df, val_df)

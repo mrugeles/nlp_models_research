@@ -57,14 +57,14 @@ def get_class_weigth(train_df):
     return class_weight
 
 
-def train_model(algorithm, train_df, test_df, val_df, sample_size):
+def train_model(train_df, test_df, val_df, sample_size):
 
     embedding_dim = 64
 
     train_padded, test_padded, val_padded, max_length = sequence_datasets(train_df, test_df, val_df)
     class_weight = get_class_weigth(train_df)
 
-    EPOCHS = 1
+    EPOCHS = 50
 
     model = tf.keras.Sequential([
         tf.keras.layers.Embedding(vocab_size, embedding_dim, input_length=max_length),
