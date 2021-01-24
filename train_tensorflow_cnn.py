@@ -39,8 +39,8 @@ def get_lemma(text):
 def tokenize(text):
     text = text.lower()
     text = re.sub(r"[^a-záéíóúÁÉÓÚÑñüÜ]", " ", text)
-    tokens = tweet_tokenizer.tokenize(text)
-    word_list = [get_lemma(text) for text in tokens]
+    word_list = tweet_tokenizer.tokenize(text)
+    word_list = [get_lemma(text) for text in word_list]
     return ' '.join(word_list)
 
 
@@ -51,7 +51,8 @@ def get_dataset(path, sample_size):
     df = df.drop_duplicates()
     return df.sample(frac=sample_size)
 
-def sequence_datasets(train_df, test_df, val_df):
+
+def sequence_datasets(train_df, val_df, test_df):
     from tensorflow.keras.preprocessing.text import Tokenizer
     from tensorflow.keras.preprocessing.sequence import pad_sequences
 
@@ -86,11 +87,11 @@ def get_class_weigth(train_df):
     return class_weight
 
 
-def train_model(train_df, test_df, val_df, sample_size):
+def train_model(train_df, val_df, test_df, sample_size):
 
     embedding_dim = 64
 
-    train_padded, test_padded, val_padded, max_length = sequence_datasets(train_df, test_df, val_df)
+    train_padded, val_padded, test_padded, max_length = sequence_datasets(train_df, val_df, test_df)
     class_weight = get_class_weigth(train_df)
 
     EPOCHS = 50
@@ -120,7 +121,7 @@ def train_model(train_df, test_df, val_df, sample_size):
         train_df['label'],
         epochs=EPOCHS,
         batch_size=2000,
-        validation_data=(test_padded, test_df['label']),
+        validation_data=(val_padded, val_df['label']),
         class_weight=class_weight,
         callbacks=[tensorboard_callback])
 
@@ -141,17 +142,17 @@ def build_model(algorithm, sample_size):
     with mlflow.start_run():
 
         train_df = get_dataset('datasets/datasets_aws/aws_es_train.csv', sample_size)
-        test_df = get_dataset('datasets/datasets_aws/aws_es_test.csv', sample_size)
         val_df = get_dataset('datasets/datasets_aws/aws_es_dev.csv', sample_size)
+        test_df = get_dataset('datasets/datasets_aws/aws_es_test.csv', sample_size)
 
         train_df['text'] = train_df['text'].progress_apply(tokenize)
-        test_df['text'] = test_df['text'].progress_apply(tokenize)
         val_df['text'] = val_df['text'].progress_apply(tokenize)
+        test_df['text'] = test_df['text'].progress_apply(tokenize)
 
         mlflow.log_param("algorithm", algorithm)
         mlflow.log_param("sample_size", sample_size)
 
-        train_model(train_df, test_df, val_df, sample_size)
+        train_model(train_df, val_df, test_df, sample_size)
 
 
 @click.command()
