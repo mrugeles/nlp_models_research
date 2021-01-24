@@ -17,6 +17,8 @@ warnings.filterwarnings('ignore')
 
 vocab_size = 1000
 mlflow.tensorflow.autolog()
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+
 
 def sequence_datasets(train_df, test_df, val_df):
     from tensorflow.keras.preprocessing.text import Tokenizer
