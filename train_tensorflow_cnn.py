@@ -12,13 +12,44 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 import tensorflow as tf
 import tensorflow_addons as tfa
 from sklearn.metrics import f1_score
+from tqdm.autonotebook import tqdm
+import re
+import nltk
+from nltk.tokenize import TweetTokenizer
+
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('wordnet')
+tweet_tokenizer = TweetTokenizer()
 
 warnings.filterwarnings('ignore')
 
 vocab_size = 1000
 mlflow.tensorflow.autolog()
+lemmas = pd.read_csv('datasets/lemmas_df.csv', index_col=0)['lemma']
+tqdm.pandas()
 
 
+def get_lemma(text):
+    if text in lemmas:
+        return lemmas[text]
+    return text
+
+
+def tokenize(text):
+    text = text.lower()
+    text = re.sub(r"[^a-záéíóúÁÉÓÚÑñüÜ]", " ", text)
+    tokens = tweet_tokenizer.tokenize(text)
+    word_list = [get_lemma(text) for text in tokens]
+    return ' '.join(word_list)
+
+
+def get_dataset(path, sample_size):
+    df = pd.read_csv(path)
+    df = df.loc[df['label']!='neu']
+    df['label'] = df['label'].apply(lambda n: 0 if n == 'neg' else 1)
+    df = df.drop_duplicates()
+    return df.sample(frac=sample_size)
 
 def sequence_datasets(train_df, test_df, val_df):
     from tensorflow.keras.preprocessing.text import Tokenizer
@@ -47,8 +78,6 @@ def sequence_datasets(train_df, test_df, val_df):
 def get_class_weigth(train_df):
     neg, pos = np.bincount(train_df['label'])
     total = neg + pos
-    print('Examples:\n    Total: {}\n    Positive: {} ({:.2f}% of total)\n'.format(
-        total, pos, 100 * pos / total))
 
     weight_for_0 = (1 / neg) * (total) / 2.0
     weight_for_1 = (1 / pos) * (total) / 2.0
@@ -111,9 +140,13 @@ def eval_prediction(n):
 def build_model(algorithm, sample_size):
     with mlflow.start_run():
 
-        train_df = pd.read_csv(f'datasets/processed/aws/train_{sample_size}.csv')
-        test_df = pd.read_csv(f'datasets/processed/aws/test_{sample_size}.csv')
-        val_df = pd.read_csv(f'datasets/processed/aws/val_{sample_size}.csv')
+        train_df = get_dataset('datasets/datasets_aws/aws_es_train.csv', sample_size)
+        test_df = get_dataset('datasets/datasets_aws/aws_es_test.csv', sample_size)
+        val_df = get_dataset('datasets/datasets_aws/aws_es_dev.csv', sample_size)
+
+        train_df['text'] = train_df['text'].progress_apply(tokenize)
+        test_df['text'] = test_df['text'].progress_apply(tokenize)
+        val_df['text'] = val_df['text'].progress_apply(tokenize)
 
         mlflow.log_param("algorithm", algorithm)
         mlflow.log_param("sample_size", sample_size)
