@@ -7,8 +7,8 @@ import numpy as np
 
 import mlflow
 import mlflow.sklearn
-from mlflow.models.signature import infer_signature
 
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 import tensorflow as tf
 import tensorflow_addons as tfa
 from sklearn.metrics import f1_score
@@ -18,7 +18,6 @@ warnings.filterwarnings('ignore')
 vocab_size = 1000
 mlflow.tensorflow.autolog()
 
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 
 def sequence_datasets(train_df, test_df, val_df):
