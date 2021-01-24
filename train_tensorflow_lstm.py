@@ -122,7 +122,7 @@ def build_model(algorithm, sample_size):
         mlflow.log_param("algorithm", algorithm)
         mlflow.log_param("sample_size", sample_size)
 
-        train_model(algorithm, train_df, test_df, val_df, sample_size)
+        train_model(train_df, test_df, val_df, sample_size)
 
 
 @click.command()
