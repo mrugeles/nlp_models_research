@@ -204,7 +204,6 @@ def sequence_bert_datasets():
         batch_size=batch_size,
         seed=seed)
 
-    class_names = raw_train_ds.class_names
     train_ds = raw_train_ds.cache().prefetch(buffer_size=AUTOTUNE)
 
     val_ds = tf.keras.preprocessing.text_dataset_from_directory(
