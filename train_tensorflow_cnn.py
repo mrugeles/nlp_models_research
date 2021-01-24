@@ -156,7 +156,7 @@ def build_model(algorithm, sample_size):
 
 @click.command()
 @click.option('--algorithm', help='ML Algorithm')
-@click.option('--sample_size', help='Sample size for dataset')
+@click.option('--sample_size', help='Sample size for dataset', type=float)
 def run_experiment(algorithm, sample_size):
     build_model(algorithm, sample_size)
 
