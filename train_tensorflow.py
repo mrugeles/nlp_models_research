@@ -305,6 +305,10 @@ def build_model(algorithm, sample_size):
         elif algorithm == 'cnn':
             train_cnn_model(train_df, val_df, test_df, sample_size)
         elif algorithm == 'bert':
+            train_df.reset_index(inplace=True)
+            val_df.reset_index(inplace=True)
+            test_df.reset_index(inplace=True)
+
             train_df.loc[train_df['label'] == 0].apply(lambda row: write_document(row, 'datasets/bert/train/0'), axis=1)
             train_df.loc[train_df['label'] == 1].apply(lambda row: write_document(row, 'datasets/bert/train/1'), axis=1)
 
